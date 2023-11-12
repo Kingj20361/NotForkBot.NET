@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using System.Threading.Tasks;
 
 namespace SysBot.Pokemon.Discord
@@ -12,7 +13,24 @@ namespace SysBot.Pokemon.Discord
         {
             var str = SysCordSettings.Settings.HelloResponse;
             var msg = string.Format(str, Context.User.Mention);
-            await ReplyAsync(msg).ConfigureAwait(false);
+            var embed = new EmbedBuilder()
+            {
+                Author = new EmbedAuthorBuilder()
+                {
+                    Name = Context.Client.CurrentUser.Username,
+                    IconUrl = Context.Client.CurrentUser.GetAvatarUrl()
+                },
+                Color = Color.Blue,
+                Description = msg
+
+            }
+            .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+            .WithImageUrl("https://i.imgur.com/fCVZXBX.gif")
+            .WithCurrentTimestamp()
+            .Build();
+                
+            await ReplyAsync(null,false, embed).ConfigureAwait(false);
+
         }
     }
 }

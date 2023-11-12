@@ -96,7 +96,11 @@ namespace SysBot.Pokemon.Discord
                 var lines = eggTradePool.Files.Select((z, i) => $"{i + 1}: **{z.Key.ToTitleCase().Replace(" ", "").Replace("-", "")}**");
                 var msg = string.Join("\n", lines);
 
-                List<string> pageContent = ExtraCommandUtil<T>.ListUtilPrep(msg);
+                // Split msg into a List<string> based on max page length
+                int maxPageLength = 350;
+                List<string> pageContent = SplitIntoPages(msg, maxPageLength);
+
+                
                 await ExtraCommandUtil<T>.ListUtil(Context, "EggTrade Pool Details", pageContent).ConfigureAwait(false);
             }
             else
@@ -367,8 +371,11 @@ namespace SysBot.Pokemon.Discord
 
                 var msg = string.Join("\n", pageItems);
 
-                List<string> pageContent = ExtraCommandUtil<T>.ListUtilPrep(msg);
-                await ExtraCommandUtil<T>.ListUtil(Context, $"EggTrade Pool Details - Page {pageNumber} of {totalNumberOfPages}", pageContent).ConfigureAwait(false);
+                // Split msg into a List<string> based on max page length
+                int maxPageLength = 500;
+                List<string> pageContent = SplitIntoPages(msg, maxPageLength);
+
+                await ExtraCommandUtil<T>.ListUtil(Context, $"Giveaway Pool Details - Page {pageNumber} of {totalNumberOfPages}", pageContent).ConfigureAwait(false);
             }
             else
             {
@@ -383,6 +390,25 @@ namespace SysBot.Pokemon.Discord
                 
                 await ReplyAsync(null, false, embed).ConfigureAwait(false);
             }
+        }
+
+        private List<string> SplitIntoPages(string text, int maxPageLength)
+        {
+            List<string> pages = new List<string>();
+            while (text.Length > 0)
+            {
+                int length = text.Length > maxPageLength ? maxPageLength : text.Length;
+                string page = text.Substring(0, length);
+                int lastNewLine = page.LastIndexOf('\n');
+                if (lastNewLine > 0 && length == maxPageLength) // Ensure we don't cut off in the middle of a line
+                {
+                    page = page.Substring(0, lastNewLine);
+                }
+
+                pages.Add(page);
+                text = text.Substring(page.Length);
+            }
+            return pages;
         }
 
     }

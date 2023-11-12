@@ -313,25 +313,39 @@ namespace SysBot.Pokemon.Discord
             return list;
         }
 
-        public static List<string> ListUtilPrep(string entry)
+        public static List<string> ListUtilPrep(List<string> descriptions, int maxPageLength)
         {
-            List<string> pageContent = new();
-            if (entry.Length > 320)
+            List<string> pages = new List<string>();
+            string currentPage = "";
+            foreach (var description in descriptions)
             {
-                var index = 0;
-                while (true)
+                if (currentPage.Length + description.Length > maxPageLength)
                 {
-                    var splice = SpliceAtWord(entry, index, 320);
-                    if (splice.Count == 0)
-                        break;
+                    pages.Add(currentPage);
+                    currentPage = "";
+                }
 
-                    index += splice.Count;
-                    pageContent.Add(string.Join(entry.Contains(',') ? ", " : entry.Contains('|') ? " | " : "\n", splice));
+                if (currentPage.Length > 0 && description.Length > maxPageLength)
+                {
+                    // Split the description and repeat the module name on the new page
+                    string moduleName = description.Substring(0, description.IndexOf('\n') + 1);
+                    string remainingDescription = description.Substring(description.IndexOf('\n') + 1);
+                    currentPage += description.Substring(0, maxPageLength - currentPage.Length);
+                    pages.Add(currentPage);
+                    currentPage = moduleName + remainingDescription.Substring(0, Math.Min(remainingDescription.Length, maxPageLength - moduleName.Length));
+                }
+                else
+                {
+                    currentPage += description;
                 }
             }
-            else pageContent.Add(entry == "" ? "No results found." : entry);
-            return pageContent;
+
+            if (currentPage.Length > 0)
+                pages.Add(currentPage);
+
+            return pages;
         }
+
 
         public static Color GetBorderColor(bool gift, PKM? pkm = null)
         {

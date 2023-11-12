@@ -30,7 +30,7 @@ namespace SysBot.Pokemon.Discord
                 Color = Color.Blue
             }
             .WithDescription(cloneMessage)
-            .WithImageUrl("https://i.imgur.com/l6LEQWw.png")
+            .WithImageUrl("https://38.media.tumblr.com/208dfc2ef7db29b908256df9434fe607/tumblr_njfcn8vvhD1sr6y44o1_500.gif")
             .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
             .WithCurrentTimestamp()
             .Build();

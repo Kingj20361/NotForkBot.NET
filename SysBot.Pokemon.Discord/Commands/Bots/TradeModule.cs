@@ -97,9 +97,27 @@ namespace SysBot.Pokemon.Discord
                 {
                     var reason = result == "Timeout" ? $"That {spec} set took too long to generate." : result == "VersionMismatch" ? "Request refused: PKHeX and Auto-Legality Mod version mismatch." : $"I wasn't able to create a {spec} from that set.";
                     var imsg = $"Oops! ** {reason} **";
+
                     if (result == "Failed")
                         imsg += $"\n{AutoLegalityWrapper.GetLegalizationHint(template, sav, pkm)}";
-                    await ReplyAsync(imsg).ConfigureAwait(false);
+
+                    var author = new EmbedAuthorBuilder()
+                    {
+                        Name = Context.User.Username,
+                        IconUrl = Context.User.GetAvatarUrl()
+                    };
+                    var oopsEmbed = new EmbedBuilder()
+                    {
+                        Author = author,
+                        Color = Color.Red
+                    }
+                    .WithDescription(imsg)
+                    .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+                    .WithCurrentTimestamp()
+                    .Build();
+                                        
+                    
+                    await ReplyAsync(null, false,oopsEmbed).ConfigureAwait(false);
                     return;
                 }
                 pk.ResetPartyStats();
@@ -109,9 +127,24 @@ namespace SysBot.Pokemon.Discord
             }
             catch (Exception ex)
             {
+                var author = new EmbedAuthorBuilder()
+                {
+                    Name = Context.User.Username,
+                    IconUrl = Context.User.GetAvatarUrl()
+                };
+                var oopsEmbed = new EmbedBuilder()
+                {
+                    Author = author,
+                    Color = Color.Red
+                }
+                .WithDescription($"Oops! An unexpected problem happened with this Showdown Set:\n```{string.Join("\n", set.GetSetLines())}```")
+                .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+                .WithCurrentTimestamp()
+                .Build();
+                                    
                 LogUtil.LogSafe(ex, nameof(TradeModule<T>));
                 var msg = $"Oops! An unexpected problem happened with this Showdown Set:\n```{string.Join("\n", set.GetSetLines())}```";
-                await ReplyAsync(msg).ConfigureAwait(false);
+                await ReplyAsync(null,false, oopsEmbed).ConfigureAwait(false);
             }
         }
 
@@ -235,6 +268,22 @@ namespace SysBot.Pokemon.Discord
                     var imsg = $"Oops! **{reason}**";
                     if (result == "Failed")
                         imsg += $"\n{AutoLegalityWrapper.GetLegalizationHint(template, sav, pkm)}";
+                    
+                    var author = new EmbedAuthorBuilder()
+                    {
+                        Name = Context.User.Username,
+                        IconUrl = Context.User.GetAvatarUrl()
+                    };
+                    var oopsEmbed = new EmbedBuilder()
+                    {
+                        Author = author,
+                        Color = Color.Red
+                    }
+                    .WithDescription(imsg)
+                    .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+                    .WithCurrentTimestamp()
+                    .Build();
+
                     await ReplyAsync(imsg).ConfigureAwait(false);
                     return;
                 }

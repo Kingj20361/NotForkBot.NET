@@ -367,7 +367,7 @@ namespace SysBot.Pokemon.Discord
                 {
                     Color = GetDiscordColor(trade.IsShiny ? ShinyMap[((Species)trade.Species, trade.Form)] : (PersonalColor)trade.PersonalInfo.Color),
                     Description = helper,
-                    ImageUrl = "https://i.imgur.com/B1Yj5Kp.png"
+                    ImageUrl = "https://media.giphy.com/media/DRfu7BT8ZK1uo/giphy.gif"
                 };
 
                 

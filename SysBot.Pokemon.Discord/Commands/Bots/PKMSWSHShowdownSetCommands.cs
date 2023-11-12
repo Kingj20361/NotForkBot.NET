@@ -31,7 +31,8 @@ namespace SysBot.Pokemon.Discord
                 Color = Color.Blue
             }
             .WithDescription(privateMsgNotification)
-            .WithImageUrl("https://i.imgur.com/5akyLET.png")
+            .WithImageUrl("https://media.giphy.com/media/KEZ8ZiKekb084Ng1E2/giphy.gif")
+            .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
             .Build();
             await Context.Channel.SendMessageAsync(null, false, embedPrivateMsgNotification);
         }

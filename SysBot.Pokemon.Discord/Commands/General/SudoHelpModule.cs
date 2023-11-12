@@ -8,21 +8,23 @@ using System.Threading.Tasks;
 
 namespace SysBot.Pokemon.Discord
 {
-    public class HelpModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new()
+    public class SudoHelpModule<T> : ModuleBase<SocketCommandContext> where T : PKM, new()
     {
         private readonly CommandService _service;
 
-        public HelpModule(CommandService service)
+        public SudoHelpModule(CommandService service)
         {
             _service = service;
             LogUtil.LogText($"Initialized HelpModule with service: {_service.GetType().Name}");
         }
 
-        [Command("help")]
+        [Command("sudohelp")]
+        [Alias("sh")]
         [Summary("Lists available commands.")]
-        public async Task HelpAsync()
+        [RequireSudo]
+        public async Task SudoHelpAsync()
         {
-            LogUtil.LogText("HelpAsync method (no parameters) called");
+            LogUtil.LogText("SudoHelpAsync method called");
 
             var app = await Context.Client.GetApplicationInfoAsync().ConfigureAwait(false);
             var owner = app.Owner.Id;
@@ -32,8 +34,8 @@ namespace SysBot.Pokemon.Discord
 
             foreach (var module in _service.Modules)
             {
-                // Skip certain modules
-                if (ShouldExcludeModule(module))
+                // Include only certain modules
+                if (!ShouldIncludeModule(module))
                     continue;
 
                 string description = "";
@@ -61,26 +63,19 @@ namespace SysBot.Pokemon.Discord
                 if (gen != -1)
                     moduleName = moduleName[..gen];
 
-                // Add an extra newline for spacing between modules
                 descriptions.Add($"**{moduleName}**\n{description}\n");
             }
 
-            var pageContent = ExtraCommandUtil<T>.ListUtilPrep(descriptions, 250); // Assuming 1000 is the max page length
-            await ExtraCommandUtil<T>.ListUtil(Context, "__List of Available Commands!__", pageContent);
+            var pageContent = ExtraCommandUtil<T>.ListUtilPrep(descriptions, 250); // Adjust page length as needed
+            await ExtraCommandUtil<T>.ListUtil(Context, "__List of Available Sudo/Owner Commands!__", pageContent);
         }
 
-        private bool ShouldExcludeModule(ModuleInfo module)
+        private bool ShouldIncludeModule(ModuleInfo module)
         {
-            var excludedModules = new List<string> { "LogModule", "PingModule", "RemoteControlModule", "BotModule", "EchoModule", "HubModule", "OwnerModule", "SudoModule", "TradeStartModule" };
-            string moduleNameWithoutGeneric = module.Name.Split('`')[0]; // Remove the generic type parameter
-            return excludedModules.Contains(moduleNameWithoutGeneric);
+            var includedModules = new List<string> { "LogModule", "PingModule", "RemoteControlModule", "BotModule", "EchoModule", "HubModule", "OwnerModule", "SudoModule", "TradeStartModule" };
+            string moduleNameWithoutGeneric = module.Name.Split('`')[0];
+            return includedModules.Contains(moduleNameWithoutGeneric);
         }
-
-
-
-
-
-
 
         [Command("help")]
         [Summary("Lists information about a specific command.")]

@@ -57,13 +57,21 @@ public class EggTradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM,
             var pk = new T();
             LogUtil.LogSafe(ex, nameof(EggTradeModule<T>));
             var oops = $"Oops! An unexpected problem happened with this Showdown Set:\n{string.Join("\n", set.GetSetLines())}";
-            var oopsembed = new Discord.EmbedBuilder()
+            var author = new EmbedAuthorBuilder()
             {
-                Color = Color.Blue
+                Name = Context.User.Username,
+                IconUrl = Context.User.GetAvatarUrl()
+            };
+            var oopsEmbed = new EmbedBuilder()
+            {
+                Author = author,
+                Color = Color.Red
             }
             .WithDescription(oops)
+            .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+            .WithCurrentTimestamp()
             .Build();
-            await ReplyAsync(null, false, oopsembed).ConfigureAwait(false);
+            await ReplyAsync(null, false, oopsEmbed).ConfigureAwait(false);
         }
     }
     private async Task<PKM> TradeEggAsync(ITrainerInfo sav, int speciesId)
@@ -133,10 +141,22 @@ public class EggTradeModule<T> : ModuleBase<SocketCommandContext> where T : PKM,
             {
                 var template = AutoLegalityWrapper.GetTemplate(set);
                 var pkm = sav.GetLegal(template, out var result);
-                TradeExtensions<PK8>.EggTrade(pkm, template); // Assuming PK8, change to corresponding PKX class if needed
-                TradeExtensions<PB8>.EggTrade(pkm, template); // Assuming PK8, change to corresponding PKX class if needed
-                TradeExtensions<PK9>.EggTrade(pkm, template); // Assuming PK9, change to corresponding PKX class if needed
-                
+                if (pkm is PA8)
+                {
+                    TradeExtensions<PA8>.EggTrade(pkm, template); // Assuming PA8, change to corresponding PKX class if needed
+                }
+                else if (pkm is PK8)
+                {
+                    TradeExtensions<PK8>.EggTrade(pkm, template); // Assuming PK8, change to corresponding PKX class if needed
+                }
+                else if (pkm is PB8)
+                {
+                    TradeExtensions<PB8>.EggTrade(pkm, template); // Assuming PB8, change to corresponding PKX class if needed
+                }
+                else if (pkm is PK9)
+                {
+                    TradeExtensions<PK9>.EggTrade(pkm, template); // Assuming PK9, change to corresponding PKX class if needed
+                }                                              
 
                 var la = new LegalityAnalysis(pkm);
                 var spec = GameInfo.Strings.Species[template.Species];

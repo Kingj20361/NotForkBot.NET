@@ -36,6 +36,16 @@ namespace SysBot.Pokemon.Discord
                     var imsg = $"Oops! **{reason}**";
                     if (result == "Failed")
                         imsg += $"\n{AutoLegalityWrapper.GetLegalizationHint(template, sav, pkm)}";
+                    
+                    var oopsEmbed = new EmbedBuilder()
+                    {
+                        
+                        Color = Color.Red
+                    }
+                    .WithDescription(imsg)
+                    .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
+                    .WithCurrentTimestamp()
+                    .Build();
                     await channel.SendMessageAsync(imsg).ConfigureAwait(false);
                     return;
                 }

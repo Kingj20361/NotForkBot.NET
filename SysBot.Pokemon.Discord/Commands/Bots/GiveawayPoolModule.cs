@@ -20,7 +20,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
         {
             return pokemon.FileName[0].ToString().ToUpper(); // Assuming the Pokémon's name is accessible via a Name property
         }
-             
+
         [Command("giveaway")]
         [Alias("ga", "giveme", "gimme")]
         [Summary("Makes the bot trade you the specified giveaway Pokémon.")]
@@ -49,7 +49,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                 .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
                 .WithCurrentTimestamp()
                 .Build();
-                await ReplyAsync(null,false, embedGiveawayMsg).ConfigureAwait(false);
+                await ReplyAsync(null, false, embedGiveawayMsg).ConfigureAwait(false);
                 return;
             }
             else if (normalizedContent == "random")
@@ -76,8 +76,8 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                 .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
                 .WithCurrentTimestamp()
                 .Build();
-                 await ReplyAsync(null, false, embedNotAvailableMsg).ConfigureAwait(false);
-                
+                await ReplyAsync(null, false, embedNotAvailableMsg).ConfigureAwait(false);
+
                 return;
             }
 
@@ -98,7 +98,10 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                 var lines = giveawaypool.Files.Select((z, i) => $"{i + 1}: **{z.Key.ToTitleCase().Replace(" ", "").Replace("-", "")}**");
                 var msg = string.Join("\n", lines);
 
-                List<string> pageContent = ExtraCommandUtil<T>.ListUtilPrep(msg);
+                // Split msg into a List<string> based on max page length
+                int maxPageLength = 350;
+                List<string> pageContent = SplitIntoPages(msg, maxPageLength);
+
                 await ExtraCommandUtil<T>.ListUtil(Context, "Giveaway Pool Details", pageContent).ConfigureAwait(false);
             }
             else
@@ -118,7 +121,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                 .WithCurrentTimestamp()
                 .Build();
                 await ReplyAsync(null, false, embedGiveawayPoolMsg).ConfigureAwait(false);
-                
+
             }
         }
 
@@ -161,7 +164,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                 .Build();
             var pool = hub.LedyPlus.GiveawayPool.Reload(hub.Config.Folder.GiveawayFolder);
             if (!pool)
-                await ReplyAsync(null,false,embedFailedtoReload).ConfigureAwait(false);
+                await ReplyAsync(null, false, embedFailedtoReload).ConfigureAwait(false);
             else
                 await ReplyAsync(null, false, embedReloadedMsg).ConfigureAwait(false);
         }
@@ -248,7 +251,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
             .WithCurrentTimestamp()
             .Build();
             await ReplyAsync(null, false, giveawayQueue).ConfigureAwait(false);
-            
+
 
         }
 
@@ -258,7 +261,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
         [RequireQueueRole(nameof(DiscordManager.RolesGiveaway))]
         public async Task RandomPokemonAsync()
         {
-            
+
             var giveawaypool = Info.Hub.LedyPlus.GiveawayPool;
             if (giveawaypool.Count == 0)
             {
@@ -277,7 +280,7 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                     .WithCurrentTimestamp()
                     .Build();
                 await ReplyAsync(null, false, embedEmptyGiveawayPool).ConfigureAwait(false);
-                
+
                 return;
             }
 
@@ -305,8 +308,8 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
         [RequireQueueRole(nameof(DiscordManager.RolesGiveaway))]
         public async Task MysteryPokemonAsync()
         {
-            
-            
+
+
             var giveawaypool = Info.Hub.LedyPlus.GiveawayPool;
             if (giveawaypool.Count == 0)
             {
@@ -369,7 +372,10 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
 
                 var msg = string.Join("\n", pageItems);
 
-                List<string> pageContent = ExtraCommandUtil<T>.ListUtilPrep(msg);
+                // Split msg into a List<string> based on max page length
+                int maxPageLength = 500;
+                List<string> pageContent = SplitIntoPages(msg, maxPageLength);
+
                 await ExtraCommandUtil<T>.ListUtil(Context, $"Giveaway Pool Details - Page {pageNumber} of {totalNumberOfPages}", pageContent).ConfigureAwait(false);
             }
             else
@@ -382,9 +388,28 @@ namespace SysBot.Pokemon.Discord.Commands.Extra
                    .WithThumbnailUrl("https://i.imgur.com/5akyLET.png")
                    .WithCurrentTimestamp()
                    .Build();
-                
+
                 await ReplyAsync(null, false, embed).ConfigureAwait(false);
             }
+        }
+
+        private List<string> SplitIntoPages(string text, int maxPageLength)
+        {
+            List<string> pages = new List<string>();
+            while (text.Length > 0)
+            {
+                int length = text.Length > maxPageLength ? maxPageLength : text.Length;
+                string page = text.Substring(0, length);
+                int lastNewLine = page.LastIndexOf('\n');
+                if (lastNewLine > 0 && length == maxPageLength) // Ensure we don't cut off in the middle of a line
+                {
+                    page = page.Substring(0, lastNewLine);
+                }
+
+                pages.Add(page);
+                text = text.Substring(page.Length);
+            }
+            return pages;
         }
 
     }

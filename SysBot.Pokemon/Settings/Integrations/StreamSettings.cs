@@ -13,7 +13,7 @@ namespace SysBot.Pokemon
     public class StreamSettings
     {
         private const string Operation = nameof(Operation);
-
+        
         public override string ToString() => "Stream Settings";
         public static Action<PKM, string>? CreateSpriteFile { get; set; }
 
@@ -150,6 +150,10 @@ namespace SysBot.Pokemon
         [Category(Operation), Description("Format to display the Completed Trades. {0} = Count")]
         public string CompletedTradesFormat { get; set; } = "Completed Trades: {0}";
 
+        [Category(Operation), Description("Create a file indicationg the current Trade Code.")]
+
+        public bool CreateTradeCode { get; set; } = true;
+
         public void StartTrade<T>(PokeRoutineExecutorBase b, PokeTradeDetail<T> detail, PokeTradeHub<T> hub) where T : PKM, new()
         {
             if (!CreateAssets)
@@ -175,6 +179,8 @@ namespace SysBot.Pokemon
                     GenerateCompletedTrades(hub);
                 if (CreateTradeStartSprite)
                     GenerateBotSprite(b, detail);
+                if (CreateTradeCode)
+                    GenerateTradeCode(detail);
             }
             catch (Exception e)
             {
@@ -211,6 +217,8 @@ namespace SysBot.Pokemon
                     File.WriteAllText("users.txt", "None");
                 if (CreateUsersInQueue)
                     File.WriteAllText("queuecount.txt", "Users in Queue: 0");
+                if (CreateTradeCode)
+                    File.WriteAllText("TradeCode.txt", "Trade Code: None");
             }
             catch (Exception e)
             {
@@ -223,6 +231,8 @@ namespace SysBot.Pokemon
             var value = string.Format(UsersInQueueFormat, count);
             File.WriteAllText("queuecount.txt", value);
         }
+
+        
 
         private void GenerateWaitedTime(DateTime time)
         {
@@ -302,6 +312,16 @@ namespace SysBot.Pokemon
             File.WriteAllText($"{file}.txt", name);
         }
 
+        private void GenerateTradeCode<T>(PokeTradeDetail<T> detail) where T : PKM, new()
+        {
+            var code = detail.Code;
+            var formattedCode = string.Format("{0:#### ####}", code); 
+            // Use space for formatting                                                        
+            // OR                                                                     
+            // var formattedCode = string.Format("{0:####-####}", code); // Use hyphen for formatting
+            File.WriteAllText("TradeCode.txt", formattedCode);
+        }
+
         private static void GenerateBotSprite<T>(PokeRoutineExecutorBase b, PokeTradeDetail<T> detail) where T : PKM, new()
         {
             var func = CreateSpriteFile;
@@ -334,6 +354,8 @@ namespace SysBot.Pokemon
                 users = users.Take(UserListTake); // filter down
             File.WriteAllText("users.txt", string.Join(UserListSeparator, users));
         }
+
+        
 
         private void GenerateCompletedTrades<T>(PokeTradeHub<T> hub) where T : PKM, new()
         {

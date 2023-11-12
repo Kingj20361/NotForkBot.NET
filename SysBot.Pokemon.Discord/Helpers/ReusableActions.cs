@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace SysBot.Pokemon.Discord
@@ -110,5 +111,11 @@ namespace SysBot.Pokemon.Discord
         }
 
         public static string StripCodeBlock(string str) => str.Replace("`\n", "").Replace("\n`", "").Replace("`", "").Trim();
+
+        public static string GetAuthorName(this IUser user) => user.Username + "#" + user.Discriminator;
+
+       
+        
     }
+
 }

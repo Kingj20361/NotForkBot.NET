@@ -20,21 +20,36 @@ namespace SysBot.Pokemon
 
         public T GetRandomPoke()
         {
-            var choice = this[Counter];
-            Counter = (Counter + 1) % Count;
-            if (Counter == 0 && Randomized)
-                Shuffle(this, 0, Count, Util.Rand);
-            return choice;
-        }
-
-        public static void Shuffle(IList<T> items, int start, int end, Random rnd)
-        {
-            for (int i = start; i < end; i++)
+            if (Randomized)
             {
-                int index = i + rnd.Next(end - i);
-                (items[index], items[i]) = (items[i], items[index]);
+                if (Counter == 0)
+                    Shuffle(this, Util.Rand);
+
+                var choice = this[Counter];
+                Counter = (Counter + 1) % Count;
+                return choice;
+            }
+            else
+            {
+                var choice = this[Counter];
+                Counter = (Counter + 1) % Count;
+                return choice;
             }
         }
+
+
+        public static void Shuffle<T>(IList<T> items, Random rnd)
+        {
+            int n = items.Count;
+            for (int i = n - 1; i > 0; i--)
+            {
+                int j = rnd.Next(0, i + 1);
+                T temp = items[i];
+                items[i] = items[j];
+                items[j] = temp;
+            }
+        }
+
 
         public T GetRandomSurprise()
         {
